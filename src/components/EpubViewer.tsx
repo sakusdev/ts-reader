@@ -3,9 +3,10 @@ import ePub, { type Rendition } from "epubjs";
 
 type Props = {
   file: File;
+  onLocationChange: (location: string, progressLabel: string) => void;
 };
 
-export function EpubViewer({ file }: Props) {
+export function EpubViewer({ file, onLocationChange }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renditionRef = useRef<Rendition | null>(null);
 
@@ -25,6 +26,16 @@ export function EpubViewer({ file }: Props) {
         spread: "none",
       });
 
+      rendition.on("relocated", (location: { start?: { cfi?: string; percentage?: number } }) => {
+        const cfi = location.start?.cfi ?? "";
+        const percentage = location.start?.percentage;
+        const label = typeof percentage === "number"
+          ? `${Math.round(percentage * 100)}%`
+          : "EPUB position saved";
+
+        onLocationChange(cfi, label);
+      });
+
       renditionRef.current = rendition;
       await rendition.display();
     }
@@ -36,7 +47,7 @@ export function EpubViewer({ file }: Props) {
       renditionRef.current?.destroy();
       renditionRef.current = null;
     };
-  }, [file]);
+  }, [file, onLocationChange]);
 
   return (
     <section className="viewer">
