@@ -1,0 +1,104 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #111;
+  color: #eee;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+  background: #181818;
+}
+
+.toolbar h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.toolbar p {
+  margin: 4px 0 0;
+  color: #aaa;
+}
+
+.fileButton {
+  cursor: pointer;
+  border: 1px solid #555;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #222;
+}
+
+.fileButton input {
+  display: none;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 70vh;
+  color: #ccc;
+}
+
+.viewer {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: calc(100vh - 78px);
+}
+
+.viewerControls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+  background: #151515;
+}
+
+.viewerControls button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #222;
+  color: #eee;
+}
+
+.pdfCanvas {
+  display: block;
+  margin: 20px auto;
+  background: white;
+  max-width: calc(100vw - 40px);
+  height: auto;
+}
+
+.epubFrame {
+  width: min(900px, calc(100vw - 40px));
+  height: calc(100vh - 150px);
+  margin: 20px auto;
+  padding: 24px;
+  background: #f7f3ea;
+  color: #111;
+  border-radius: 12px;
+}
+
+.cbzImage {
+  display: block;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 150px);
+  margin: 20px auto;
+  object-fit: contain;
+}
