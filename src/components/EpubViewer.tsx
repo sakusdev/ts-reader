@@ -3,10 +3,11 @@ import ePub, { type Rendition } from "epubjs";
 
 type Props = {
   file: File;
+  initialLocation: string | null;
   onLocationChange: (location: string, progressLabel: string) => void;
 };
 
-export function EpubViewer({ file, onLocationChange }: Props) {
+export function EpubViewer({ file, initialLocation, onLocationChange }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renditionRef = useRef<Rendition | null>(null);
 
@@ -37,7 +38,7 @@ export function EpubViewer({ file, onLocationChange }: Props) {
       });
 
       renditionRef.current = rendition;
-      await rendition.display();
+      await rendition.display(initialLocation || undefined);
     }
 
     open().catch(console.error);
@@ -47,7 +48,7 @@ export function EpubViewer({ file, onLocationChange }: Props) {
       renditionRef.current?.destroy();
       renditionRef.current = null;
     };
-  }, [file, onLocationChange]);
+  }, [file, initialLocation, onLocationChange]);
 
   return (
     <section className="viewer">
