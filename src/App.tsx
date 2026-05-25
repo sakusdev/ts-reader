@@ -5,12 +5,13 @@ import { CbzViewer } from "./components/CbzViewer";
 import { Bookshelf } from "./components/Bookshelf";
 import { createBookId, getBookTitle, type LibraryBook } from "./books";
 import { detectBookFormat, type BookFormat } from "./readers/format";
-import { clearLibrary, listLibraryBooks, saveLibraryBook, saveReadingState } from "./storage/libraryDb";
+import { clearLibrary, getReadingState, listLibraryBooks, saveLibraryBook, saveReadingState } from "./storage/libraryDb";
 
 export function App() {
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<BookFormat | null>(null);
   const [bookId, setBookId] = useState<string | null>(null);
+  const [initialLocation, setInitialLocation] = useState<string | null>(null);
   const [books, setBooks] = useState<LibraryBook[]>([]);
 
   const refreshBooks = useCallback(async () => {
@@ -26,10 +27,14 @@ export function App() {
 
     const nextFormat = detectBookFormat(nextFile.name, nextFile.type);
     const nextBookId = createBookId(nextFile);
+    const previousState = await getReadingState(nextBookId);
+    const previousBook = books.find((book) => book.id === nextBookId);
+    const restoredLocation = previousState?.location || previousBook?.location || null;
 
     setFile(nextFile);
     setFormat(nextFormat);
     setBookId(nextBookId);
+    setInitialLocation(restoredLocation);
 
     if (nextFormat !== "unknown") {
       await saveLibraryBook({
@@ -39,8 +44,8 @@ export function App() {
         size: nextFile.size,
         lastModified: nextFile.lastModified,
         lastOpenedAt: Date.now(),
-        location: "",
-        progressLabel: "Opened",
+        location: restoredLocation ?? "",
+        progressLabel: previousState?.progressLabel || previousBook?.progressLabel || "Opened",
       });
       await refreshBooks();
     }
@@ -107,9 +112,9 @@ export function App() {
             </section>
           )}
 
-          {file && format === "pdf" && <PdfViewer file={file} onLocationChange={onLocationChange} />}
-          {file && format === "epub" && <EpubViewer file={file} onLocationChange={onLocationChange} />}
-          {file && format === "cbz" && <CbzViewer file={file} onLocationChange={onLocationChange} />}
+          {file && format === "pdf" && <PdfViewer file={file} initialLocation={initialLocation} onLocationChange={onLocationChange} />}
+          {file && format === "epub" && <EpubViewer file={file} initialLocation={initialLocation} onLocationChange={onLocationChange} />}
+          {file && format === "cbz" && <CbzViewer file={file} initialLocation={initialLocation} onLocationChange={onLocationChange} />}
           {file && format === "unknown" && (
             <section className="empty">
               <h2>Unsupported format</h2>
