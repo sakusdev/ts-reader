@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import ePub, { type Rendition } from "epubjs";
+import { useSwipePaging } from "../hooks/useSwipePaging";
 
 type Props = {
   file: File;
@@ -10,6 +11,10 @@ type Props = {
 export function EpubViewer({ file, initialLocation, onLocationChange }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renditionRef = useRef<Rendition | null>(null);
+
+  const goPrev = () => renditionRef.current?.prev();
+  const goNext = () => renditionRef.current?.next();
+  const swipeHandlers = useSwipePaging({ onPrev: goPrev, onNext: goNext });
 
   useEffect(() => {
     let destroyed = false;
@@ -51,12 +56,13 @@ export function EpubViewer({ file, initialLocation, onLocationChange }: Props) {
   }, [file, initialLocation, onLocationChange]);
 
   return (
-    <section className="viewer">
+    <section className="viewer" {...swipeHandlers}>
       <div className="viewerControls">
-        <button onClick={() => renditionRef.current?.prev()}>Prev</button>
+        <button onClick={goPrev}>Prev</button>
         <span>{file.name}</span>
-        <button onClick={() => renditionRef.current?.next()}>Next</button>
+        <button onClick={goNext}>Next</button>
       </div>
+      <div className="mobileSwipeHint">Swipe left / right to turn pages</div>
       <div ref={containerRef} className="epubFrame" />
     </section>
   );
