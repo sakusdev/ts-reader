@@ -45,6 +45,7 @@ export function PdfViewer({ file, initialLocation, onLocationChange }: Props) {
       canvas.height = viewport.height;
 
       await pdfPage.render({
+        canvas,
         canvasContext: context,
         viewport,
       }).promise;
