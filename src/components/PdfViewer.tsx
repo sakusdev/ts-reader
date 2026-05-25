@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
+import { useSwipePaging } from "../hooks/useSwipePaging";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -14,6 +15,10 @@ export function PdfViewer({ file, initialLocation, onLocationChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
+
+  const goPrev = () => setPage((p) => Math.max(1, p - 1));
+  const goNext = () => setPage((p) => (pageCount ? Math.min(pageCount, p + 1) : p + 1));
+  const swipeHandlers = useSwipePaging({ onPrev: goPrev, onNext: goNext });
 
   useEffect(() => {
     const restoredPage = Number(initialLocation);
@@ -61,12 +66,13 @@ export function PdfViewer({ file, initialLocation, onLocationChange }: Props) {
   }, [file, page, onLocationChange]);
 
   return (
-    <section className="viewer">
+    <section className="viewer" {...swipeHandlers}>
       <div className="viewerControls">
-        <button onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
+        <button onClick={goPrev}>Prev</button>
         <span>{page} / {pageCount || "?"}</span>
-        <button onClick={() => setPage((p) => (pageCount ? Math.min(pageCount, p + 1) : p + 1))}>Next</button>
+        <button onClick={goNext}>Next</button>
       </div>
+      <div className="mobileSwipeHint">Swipe left / right to turn pages</div>
       <canvas ref={canvasRef} className="pdfCanvas" />
     </section>
   );
