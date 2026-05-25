@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import JSZip from "jszip";
+import { useSwipePaging } from "../hooks/useSwipePaging";
 
 type Props = {
   file: File;
@@ -10,6 +11,10 @@ type Props = {
 export function CbzViewer({ file, initialLocation, onLocationChange }: Props) {
   const [pages, setPages] = useState<string[]>([]);
   const [page, setPage] = useState(0);
+
+  const goPrev = () => setPage((p) => Math.max(0, p - 1));
+  const goNext = () => setPage((p) => Math.min(pages.length - 1, p + 1));
+  const swipeHandlers = useSwipePaging({ onPrev: goPrev, onNext: goNext });
 
   useEffect(() => {
     let urls: string[] = [];
@@ -50,12 +55,13 @@ export function CbzViewer({ file, initialLocation, onLocationChange }: Props) {
   }, [page, pages.length, onLocationChange]);
 
   return (
-    <section className="viewer">
+    <section className="viewer" {...swipeHandlers}>
       <div className="viewerControls">
-        <button onClick={() => setPage((p) => Math.max(0, p - 1))}>Prev</button>
+        <button onClick={goPrev}>Prev</button>
         <span>{pages.length ? `${page + 1} / ${pages.length}` : "Loading"}</span>
-        <button onClick={() => setPage((p) => Math.min(pages.length - 1, p + 1))}>Next</button>
+        <button onClick={goNext}>Next</button>
       </div>
+      <div className="mobileSwipeHint">Swipe left / right to turn pages</div>
 
       {pages[page] && <img className="cbzImage" src={pages[page]} alt={`Page ${page + 1}`} />}
     </section>
