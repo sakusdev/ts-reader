@@ -7,12 +7,22 @@ import { createBookId, getBookTitle, type LibraryBook } from "./books";
 import { detectBookFormat, type BookFormat } from "./readers/format";
 import { clearLibrary, getReadingState, listLibraryBooks, saveLibraryBook, saveReadingState } from "./storage/libraryDb";
 
+type Theme = "light" | "dark";
+
+const THEME_STORAGE_KEY = "ts-reader-theme";
+
+function getInitialTheme(): Theme {
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  return saved === "dark" ? "dark" : "light";
+}
+
 export function App() {
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<BookFormat | null>(null);
   const [bookId, setBookId] = useState<string | null>(null);
   const [initialLocation, setInitialLocation] = useState<string | null>(null);
   const [books, setBooks] = useState<LibraryBook[]>([]);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   const refreshBooks = useCallback(async () => {
     setBooks(await listLibraryBooks());
@@ -21,6 +31,15 @@ export function App() {
   useEffect(() => {
     refreshBooks().catch(console.error);
   }, [refreshBooks]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((current) => current === "light" ? "dark" : "light");
+  }
 
   async function onFileChange(nextFile: File | undefined) {
     if (!nextFile) return;
@@ -90,14 +109,20 @@ export function App() {
           <p>PDF / EPUB / CBZ local ebook reader</p>
         </div>
 
-        <label className="fileButton">
-          Open book
-          <input
-            type="file"
-            accept=".pdf,.epub,.cbz,.zip,application/pdf,application/epub+zip"
-            onChange={(event) => onFileChange(event.target.files?.[0])}
-          />
-        </label>
+        <div className="toolbarActions">
+          <button className="themeButton" onClick={toggleTheme} type="button">
+            {theme === "light" ? "Dark" : "Light"}
+          </button>
+
+          <label className="fileButton">
+            Open book
+            <input
+              type="file"
+              accept=".pdf,.epub,.cbz,.zip,application/pdf,application/epub+zip"
+              onChange={(event) => onFileChange(event.target.files?.[0])}
+            />
+          </label>
+        </div>
       </header>
 
       <div className="layout">
