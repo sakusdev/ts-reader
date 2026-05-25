@@ -7,6 +7,7 @@
 
 body {
   margin: 0;
+  overscroll-behavior: none;
 }
 
 button {
@@ -144,15 +145,16 @@ button:disabled {
 
 .viewer {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   height: calc(100vh - 73px);
   overflow: auto;
+  touch-action: pan-y;
 }
 
 .viewerControls {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   gap: 12px;
   justify-content: center;
@@ -160,6 +162,10 @@ button:disabled {
   padding: 10px;
   border-bottom: 1px solid #333;
   background: #151515;
+}
+
+.mobileSwipeHint {
+  display: none;
 }
 
 .pdfCanvas {
@@ -189,9 +195,32 @@ button:disabled {
 }
 
 @media (max-width: 800px) {
+  body {
+    background: #0b0b0b;
+  }
+
   .toolbar {
-    align-items: flex-start;
-    flex-direction: column;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .toolbar h1 {
+    font-size: 17px;
+  }
+
+  .toolbar p {
+    display: none;
+  }
+
+  .fileButton {
+    padding: 9px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
   }
 
   .layout {
@@ -200,20 +229,144 @@ button:disabled {
   }
 
   .bookshelf {
-    max-height: 220px;
+    max-height: 150px;
     border-right: 0;
     border-bottom: 1px solid #333;
+    padding: 10px 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .bookshelfHeader {
+    margin-bottom: 8px;
+  }
+
+  .bookshelfHeader h2 {
+    font-size: 14px;
+  }
+
+  .bookshelfHeader button {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+
+  .bookList {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 4px;
+  }
+
+  .bookCard {
+    min-width: 180px;
+    max-width: 220px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .bookTitle {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bookMeta,
+  .bookProgress {
+    font-size: 11px;
+  }
+
+  .readerPane {
+    min-height: calc(100vh - 220px);
+  }
+
+  .empty {
+    min-height: calc(100vh - 230px);
+    padding: 20px;
   }
 
   .viewer {
-    height: auto;
-    min-height: 70vh;
+    position: relative;
+    height: calc(100vh - 205px);
+    min-height: 520px;
+    overflow: auto;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    touch-action: pan-y;
   }
 
-  .pdfCanvas,
-  .epubFrame,
+  .viewerControls {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    top: auto;
+    z-index: 10;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.92);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+
+  .viewerControls button {
+    min-width: 72px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  .viewerControls span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 12px;
+    color: #ddd;
+  }
+
+  .mobileSwipeHint {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 8px auto 0;
+    padding: 6px 10px;
+    width: fit-content;
+    border: 1px solid #333;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.8);
+    color: #aaa;
+    font-size: 11px;
+    pointer-events: none;
+  }
+
+  .pdfCanvas {
+    max-width: calc(100vw - 16px);
+    width: calc(100vw - 16px);
+    margin: 10px auto 90px;
+  }
+
+  .epubFrame {
+    box-sizing: border-box;
+    max-width: calc(100vw - 16px);
+    width: calc(100vw - 16px);
+    height: calc(100vh - 300px);
+    min-height: 420px;
+    margin: 10px auto 90px;
+    padding: 18px;
+    border-radius: 14px;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
   .cbzImage {
-    max-width: calc(100vw - 32px);
-    width: calc(100vw - 32px);
+    max-width: calc(100vw - 8px);
+    max-height: calc(100vh - 300px);
+    width: auto;
+    margin: 10px auto 90px;
   }
 }
