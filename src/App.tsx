@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PdfViewer } from "./components/PdfViewer";
 import { EpubViewer } from "./components/EpubViewer";
 import { CbzViewer } from "./components/CbzViewer";
@@ -13,13 +13,13 @@ export function App() {
   const [bookId, setBookId] = useState<string | null>(null);
   const [books, setBooks] = useState<LibraryBook[]>([]);
 
-  useEffect(() => {
-    refreshBooks().catch(console.error);
+  const refreshBooks = useCallback(async () => {
+    setBooks(await listLibraryBooks());
   }, []);
 
-  async function refreshBooks() {
-    setBooks(await listLibraryBooks());
-  }
+  useEffect(() => {
+    refreshBooks().catch(console.error);
+  }, [refreshBooks]);
 
   async function onFileChange(nextFile: File | undefined) {
     if (!nextFile) return;
@@ -46,7 +46,7 @@ export function App() {
     }
   }
 
-  async function onLocationChange(location: string, progressLabel: string) {
+  const onLocationChange = useCallback(async (location: string, progressLabel: string) => {
     if (!file || !format || !bookId || format === "unknown") return;
 
     const book: LibraryBook = {
@@ -70,7 +70,7 @@ export function App() {
       updatedAt: Date.now(),
     });
     await refreshBooks();
-  }
+  }, [bookId, file, format, refreshBooks]);
 
   async function onClearLibrary() {
     await clearLibrary();
