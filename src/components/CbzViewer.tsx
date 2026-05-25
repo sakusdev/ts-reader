@@ -3,10 +3,11 @@ import JSZip from "jszip";
 
 type Props = {
   file: File;
+  initialLocation: string | null;
   onLocationChange: (location: string, progressLabel: string) => void;
 };
 
-export function CbzViewer({ file, onLocationChange }: Props) {
+export function CbzViewer({ file, initialLocation, onLocationChange }: Props) {
   const [pages, setPages] = useState<string[]>([]);
   const [page, setPage] = useState(0);
 
@@ -27,8 +28,13 @@ export function CbzViewer({ file, onLocationChange }: Props) {
         })
       );
 
+      const restoredPage = Number(initialLocation);
+      const safePage = Number.isFinite(restoredPage)
+        ? Math.min(Math.max(0, restoredPage), Math.max(0, urls.length - 1))
+        : 0;
+
       setPages(urls);
-      setPage(0);
+      setPage(safePage);
     }
 
     open().catch(console.error);
@@ -36,7 +42,7 @@ export function CbzViewer({ file, onLocationChange }: Props) {
     return () => {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [file]);
+  }, [file, initialLocation]);
 
   useEffect(() => {
     if (pages.length === 0) return;
