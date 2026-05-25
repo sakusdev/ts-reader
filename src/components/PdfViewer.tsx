@@ -6,18 +6,20 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 type Props = {
   file: File;
+  initialLocation: string | null;
   onLocationChange: (location: string, progressLabel: string) => void;
 };
 
-export function PdfViewer({ file, onLocationChange }: Props) {
+export function PdfViewer({ file, initialLocation, onLocationChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
 
   useEffect(() => {
-    setPage(1);
+    const restoredPage = Number(initialLocation);
+    setPage(Number.isFinite(restoredPage) && restoredPage > 0 ? restoredPage : 1);
     setPageCount(0);
-  }, [file]);
+  }, [file, initialLocation]);
 
   useEffect(() => {
     let cancelled = false;
